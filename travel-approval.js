@@ -1,0 +1,10 @@
+import OBR from "https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3.1.0/+esm";
+const NS="com.lynx.fabula-unified",CHANNEL=`${NS}/events`,CONTROL_CHANNEL=`${NS}/companion-hud-control-v1`;
+const params=new URLSearchParams(location.search);let req={};try{req=JSON.parse(params.get("request")||"{}")||{}}catch{}
+const esc=(v="")=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+let busy=false,bus=null;
+function render(msg=""){const app=document.getElementById("app");if(!app)return;app.innerHTML=`<section class="travel-approval-canvas"><div class="travel-approval-kicker">TRAVEL REQUEST · ${esc(req.groupId||"MAIN")}</div><h2>${esc(req.senderName||"PLAYER")} WANTS TO MOVE</h2><div class="travel-approval-route"><span>${esc(req.fromName||"CURRENT NODE")}</span><b>→</b><span>${esc(req.targetName||"TARGET NODE")}</span></div><div class="travel-approval-meta">${esc(req.fromMapName||"")}${req.targetMapName&&req.targetMapName!==req.fromMapName?` → ${esc(req.targetMapName)}`:""}</div><div class="travel-approval-actions"><button class="deny" data-decision="0" ${busy?"disabled":""}>DENY</button><button class="allow" data-decision="1" ${busy?"disabled":""}>ALLOW MOVE</button></div><div class="travel-approval-status">${esc(msg)}</div></section>`;}
+function close(){try{bus ||= new BroadcastChannel(CONTROL_CHANNEL);bus.postMessage({type:"travel-approval-close",time:Date.now()})}catch{}}
+async function decide(ok){if(busy)return;busy=true;render("PROCESSING…");try{await OBR.broadcast.sendMessage(CHANNEL,{type:"travel-move-approval-decision","travel-move-approval-decision":{requestId:String(req.requestId||""),approved:!!ok,senderId:OBR.player.id,time:Date.now()}},{destination:"ALL"})}catch(e){busy=false;render("FAILED · TRY AGAIN");console.warn(e)}}
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-decision]");if(b)decide(b.dataset.decision==="1")});
+OBR.onReady(async()=>{try{if(await OBR.player.getRole()!=="GM"){close();return}}catch{}render()});
