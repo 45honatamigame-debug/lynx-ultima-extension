@@ -1,0 +1,3 @@
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const p=new URLSearchParams(location.search),name=p.get("name")||"CLOCK",gif=p.get("gif")||"",objective=p.get("objective")==="1",segments=Math.max(1,Number(p.get("segments"))||1);
+document.getElementById("app").innerHTML=`<section class="milestone ${objective?"objective":""}"><span class="wave w1"></span><span class="wave w2"></span>${gif?`<div class="media"><img src="${esc(gif)}" alt="${esc(name)} animation"></div>`:""}<div class="copy"><small>${objective?"OBJECTIVE RESOLVED":"CLOCK MILESTONE"}</small><strong>CLOCK COMPLETE</strong><b>${esc(name)}</b><span>${segments} / ${segments}</span></div></section>`;
