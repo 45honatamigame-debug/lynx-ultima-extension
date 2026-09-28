@@ -1,0 +1,16 @@
+{
+  "name": "Fabula",
+  "version": "3.0.100",
+  "manifest_version": 1,
+  "description": "Made by lynx",
+  "author": "lynx",
+  "icon": "/icon.png",
+  "action": {
+    "title": "Fabula",
+    "icon": "/action-icon-v213.svg",
+    "popover": "/index.html",
+    "width": 900,
+    "height": 580
+  },
+  "background_url": "/background.html"
+}
